@@ -40,17 +40,34 @@ def shunting_yard(regex):
         elif char == ")":
             while operator_stack and operator_stack[-1] != "(":
                 output.append(operator_stack.pop())
+            if not operator_stack or operator_stack[-1] != "(":
+                raise ValueError("Error: Paréntesis no cerrado.")
             operator_stack.pop()
+
         
     
     while operator_stack:
+        if operator_stack[-1] == "(":
+            
+            raise ValueError("Error: "+ regex +" Expresion invalida, parentesis no cerrado.")
         output.append(operator_stack.pop())
 
     return ''.join(output)
 
-postfix_expression = shunting_yard("(a+b)*abc*")
-print("Expresión regular en notación postfix:", postfix_expression)
+try:
+    postfix_expression = shunting_yard("(a+b)*abc*")
+    print("Expresión regular en notación postfix:", postfix_expression)
+except ValueError as e:
+    print(e)
 
-postfix_expression = shunting_yard("(a+b)*+aaa(a+b)")
+try:
+    postfix_expression = shunting_yard("(a+b)*+aaa(a+b)")
+    print("Expresión regular en notación postfix:", postfix_expression)
+except ValueError as e:
+    print(e)
 
-print("Expresión regular en notación postfix:", postfix_expression)
+try:
+    postfix_expression = shunting_yard("(a+b*+aaa(a+b)")
+    print("Expresión regular en notación postfix:", postfix_expression)
+except ValueError as e:
+    print(e)
