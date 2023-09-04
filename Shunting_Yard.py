@@ -49,7 +49,7 @@ def shunting_yard(regex):
     while operator_stack:
         if operator_stack[-1] == "(":
             
-            raise ValueError("Error: "+ regex +" Expresion invalida, parentesis no cerrado.")
+            raise ValueError("Error: "+ regex +" Expresion invalida, parentesis no balanceado.")
         output.append(operator_stack.pop())
 
     return ''.join(output)
