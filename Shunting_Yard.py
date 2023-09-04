@@ -71,3 +71,8 @@ try:
     print("Expresión regular en notación postfix:", postfix_expression)
 except ValueError as e:
     print(e)
+try:
+    postfix_expression = shunting_yard("((a+b)*+a)aaa(a+b)")
+    print("Expresión regular en notación postfix:", postfix_expression)
+except ValueError as e:
+    print(e)
