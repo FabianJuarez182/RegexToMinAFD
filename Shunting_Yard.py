@@ -35,9 +35,11 @@ def shunting_yard(regex):
                         output.append("^")
                 elif operator_stack[-1] == "(" and len(operator_stack) == 1:
                     if alphanum(output[-2]):
-                        output.append("^")
+                        if operator_stack[-1] != "(":
+                            output.append("^")
                     elif (output[-2] in operator_list):
-                        output.append("^")
+                        if operator_stack[-1] != "(":
+                            output.append("^")
                 elif operator_stack[-1] == "+" and len(operator_stack) == 1:
                     output.append(operator_stack.pop())
             if contsum == 2:
@@ -85,23 +87,6 @@ def shunting_yard(regex):
 
     return ''.join(output)
 
-try:
-    postfix_expression = shunting_yard("(a+b)*abc*")
-    print("Expresión regular en notación postfix:", postfix_expression)
-except ValueError as e:
-    print(e)
-
-try:
-    postfix_expression = shunting_yard("(a+b)*+aaa(a+b)")
-    print("Expresión regular en notación postfix:", postfix_expression)
-except ValueError as e:
-    print(e)
-
-try:
-    postfix_expression = shunting_yard("(a+b*+aaa(a+b))")
-    print("Expresión regular en notación postfix:", postfix_expression)
-except ValueError as e:
-    print(e)
 try:
     postfix_expression = shunting_yard("((a+b)*+a)aaa(a+b)")
     print("Expresión regular en notación postfix:", postfix_expression)
