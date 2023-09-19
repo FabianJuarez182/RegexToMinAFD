@@ -24,9 +24,14 @@ def shunting_yard(regex):
             if sumflag:
                 contsum += 1
             if len(output) >= 2:
-                if (alphanum(output[-2])) and len(operator_stack) == 0:
-                    output.append("^")
-                elif (output[-2] in operator_list) and len(operator_stack) == 0:
+                if ((alphanum(output[-2]) or output[-2] == "^") and len(operator_stack) == 0 )or ((alphanum(output[-2]) or output[-2] == "^")and len(operator_stack) == 1 and operator_stack[-1] == "+"):
+                    if regex[cont+1] == "*" :
+                        output.append("*")
+                        output.append("^")
+                        break
+                    else:
+                        output.append("^")
+                elif (output[-2] in operator_list or alphanum(output[-2]) or output[-2] == "^") and len(operator_stack) == 0:
                     if regex[cont+1] == "*" :
                         output.append("*")
                         output.append("^")
@@ -40,20 +45,24 @@ def shunting_yard(regex):
                     elif (output[-2] in operator_list):
                         if operator_stack[-1] != "(":
                             output.append("^")
-                elif operator_stack[-1] == "+" and len(operator_stack) == 1:
-                    output.append(operator_stack.pop())
+                elif operator_stack[-1] == "+" and len(operator_stack) == 1 :
+                    if regex[cont+1]==")" and cont<= len(regex)-2:
+                        output.append(operator_stack.pop())
             if contsum == 2:
                 if cont < len(regex) - 1:
                     if regex[cont+1] != ")":
-                        if operator_stack:
+                        if operator_stack and operator_stack[-1] != "+":
                             output.append(operator_stack.pop())
                         contsum = 0
                         sumflag = False
         elif char in "+":
             operator_stack.append(char)
-            contsum += 1 
+            contsum += 1
             sumflag == True
         elif char == "*":
+            if len(operator_stack) == 0:
+                if regex[cont-1] == ")":
+                    output.append("*")
             if operator_stack:
                 if operator_stack[-1] == "(":
                     output.append("*")
@@ -73,10 +82,6 @@ def shunting_yard(regex):
         a = next((x for x in range(len(output)) if output[x] == "^"), None)
         if a and  a > 0:
                 output.append("^")
-            
-        
-            
-        
 
             
     while operator_stack:
@@ -86,9 +91,27 @@ def shunting_yard(regex):
         output.append(operator_stack.pop())
 
     return ''.join(output)
+if __name__ == "__main__":
 
-try:
-    postfix_expression = shunting_yard("((a+b)*+a)aaa(a+b)")
-    print("Expresión regular en notación postfix:", postfix_expression)
-except ValueError as e:
-    print(e)
+    try:
+        postfix_expression = shunting_yard("(a+b)*abc*")
+        print("Expresión regular en notación postfix:", postfix_expression)
+    except ValueError as e:
+        print(e)
+
+    try:
+        postfix_expression = shunting_yard("(a+b)*+aaa(a+b)")
+        print("Expresión regular en notación postfix:", postfix_expression)
+    except ValueError as e:
+        print(e)
+
+    try:
+        postfix_expression = shunting_yard("(a+b*+aaa(a+b)")
+        print("Expresión regular en notación postfix:", postfix_expression)
+    except ValueError as e:
+        print(e)
+    try:
+        postfix_expression = shunting_yard("((a+b)*+a)aaa(a+b)")
+        print("Expresión regular en notación postfix:", postfix_expression)
+    except ValueError as e:
+        print(e)
