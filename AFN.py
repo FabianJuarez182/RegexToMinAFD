@@ -6,7 +6,6 @@ class state:
     label, ledge, redge = None, None, None
 
 class nfa:
-    initial, accept = None, None
 
     def __init__(self, initial, acceptation):
         self.initial, self.acceptation = initial, acceptation
@@ -33,10 +32,21 @@ def postfix_to_nfa(expression):
             # Unión
             second = stack.pop()
             first = stack.pop()
-            new_initial = state()
+            new_initial, new_accepting = state(), state()
+            new_accepting.label = "ε"
+
+            l1 = first.initial.label
+            l2 = second.initial.label
+
+            first.initial.label, second.initial.label = "ε", "ε"
             new_initial.ledge, new_initial.redge = first.initial, second.initial
-            new_accepting = state()
-            first.acceptation.ledge, second.acceptation.ledge = new_accepting, new_accepting
+
+
+            new_first, new_second = state(), state()
+            new_first.label, new_second.label = l1, l2
+            first.initial.ledge, second.initial.ledge = new_first, new_second
+            new_first.ledge, new_second.ledge = new_accepting, new_accepting
+
 
             stack.append(nfa(new_initial, new_accepting))
 

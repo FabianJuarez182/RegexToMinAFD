@@ -4,7 +4,7 @@ from PIL import Image
 
 
 def main():
-    expression = "(a+b)*"
+    expression = "(a+b)+c"
     chain = ""
 
     try:
@@ -19,7 +19,7 @@ def main():
         print("Imagen del AFN generada con éxito.")
 
         # Visualizar el AFN
-        visualize_nfa(nfa)
+        #visualize_nfa(nfa)
 
         # Abrir y mostrar la imagen generada
         #view_image("nfa.png")
