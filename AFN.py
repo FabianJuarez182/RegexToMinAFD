@@ -51,16 +51,15 @@ def postfix_to_nfa(expression):
             stack.append(nfa(new_initial, new_accepting))
 
         elif symbol == '*':
-            # Cierre de Kleene
             state1 = stack.pop()
+            new_initial, new_accepting = state(), state()
+            new_accepting.label = "ε"
 
-            initial, accept = state(), state()
+            new_initial.ledge, new_initial.redge = state1.initial, new_accepting
 
-            initial.ledge, initial.redge = state1.initial, accept
+            state1.acceptation.ledge, state1.acceptation.redge = state1.initial, new_accepting
 
-            state1.acceptation.ledge, state1.acceptation.redge = state1.initial, accept
-
-            stack.append(nfa(initial, accept))
+            stack.append(nfa(new_initial, new_accepting))
 
     if len(stack) != 1:
         raise ValueError("Expresión no válida")
