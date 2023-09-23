@@ -4,7 +4,7 @@ from PIL import Image
 
 
 def main():
-    expression = "(a+b)*abc*"
+    expression = "(a+b)*"
     chain = ""
 
     try:
@@ -13,6 +13,8 @@ def main():
         print("Expresión en postfix:", postfix_expression)
 
         nfa = postfix_to_nfa(postfix_expression)
+
+        print(str(nfa))
 
         print("Imagen del AFN generada con éxito.")
 

@@ -1,47 +1,61 @@
 from graphviz import Digraph
+def alphanum(a):
+    return a.isalpha() or a.isnumeric() or a == "ε"
 
-class NFAState:
-    def __init__(self):
-        self.transitions = {}
-        self.epsilon_transitions = set()
-        self.accepting = False
+class state:
+    label, ledge, redge = None, None, None
+
+class nfa:
+    initial, accept = None, None
+
+    def __init__(self, initial, acceptation):
+        self.initial, self.acceptation = initial, acceptation
 
 def postfix_to_nfa(expression):
     stack = []
 
     for symbol in expression:
-        if symbol.isalpha():
+        if alphanum(symbol):
             # Crear un nuevo estado para el símbolo
-            state = NFAState()
-            state.transitions[symbol] = set()
-            stack.append(state)
+            new_accepting, new_initial = state(), state()
+
+            new_initial.label, new_initial.ledge = symbol, new_accepting
+
+            stack.append(nfa(new_initial, new_accepting))
+            
         elif symbol == '^':
             # Concatenación
-            second = stack.pop()
-            first = stack.pop()
-            for s in first.transitions:
-                first.transitions[s] |= second.epsilon_transitions
-            stack.append(first)
+            state2, state1 = stack.pop(), stack.pop()
+            state1.acceptation.ledge = state2.initial
+
+            stack.append(nfa(state1.initial, state2.acceptation))
         elif symbol == '+':
             # Unión
             second = stack.pop()
             first = stack.pop()
-            state = NFAState()
-            state.epsilon_transitions.add(first)
-            state.epsilon_transitions.add(second)
-            stack.append(state)
+            new_initial = state()
+            new_initial.ledge, new_initial.redge = first.initial, second.initial
+            new_accepting = state()
+            first.acceptation.ledge, second.acceptation.ledge = new_accepting, new_accepting
+
+            stack.append(nfa(new_initial, new_accepting))
+
         elif symbol == '*':
             # Cierre de Kleene
-            state = stack.pop()
-            new_state = NFAState()
-            new_state.epsilon_transitions.add(state)
-            state.epsilon_transitions.add(new_state)
-            stack.append(new_state)
+            state1 = stack.pop()
+
+            initial, accept = state(), state()
+
+            initial.ledge, initial.redge = state1.initial, accept
+
+            state1.acceptation.ledge, state1.acceptation.redge = state1.initial, accept
+
+            stack.append(nfa(initial, accept))
 
     if len(stack) != 1:
         raise ValueError("Expresión no válida")
 
-    return stack[0]
+    return stack.pop()
 
 def visualize_nfa(nfa):
     dot = Digraph(format='png')
@@ -57,7 +71,7 @@ def visualize_nfa(nfa):
         state_name = f"q{state_counter}"
         state_names[state] = state_name
         state_counter += 1
-        dot.node(state_name, shape='circle', style='bold' if state.accepting else '')
+        dot.node(state_name, shape='circle', style='bold' if state.acceptation else '')
 
         for symbol, next_states in state.transitions.items():
             for next_state in next_states:
