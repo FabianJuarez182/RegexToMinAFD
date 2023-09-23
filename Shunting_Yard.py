@@ -3,7 +3,6 @@ def alphanum(a):
 
 
 def shunting_yard(regex):
-    precedence = {'*': 3, '^': 2, '+': 1}
     output = []
     operator_list = ["*", "+", "^", "(", ")"]
     operator_stack = []
@@ -25,7 +24,7 @@ def shunting_yard(regex):
                 contsum += 1
             if len(output) >= 2:
                 if ((alphanum(output[-2]) or output[-2] == "^") and len(operator_stack) == 0 )or ((alphanum(output[-2]) or output[-2] == "^")and len(operator_stack) == 1 and operator_stack[-1] == "+"):
-                    if len(regex)-2 > cont and regex[cont+1] == "*" :
+                    if regex[cont+1] == "*" :
                         output.append("*")
                         output.append("^")
                         break
@@ -61,7 +60,7 @@ def shunting_yard(regex):
             sumflag == True
         elif char == "*":
             if len(operator_stack) == 0:
-                if regex[cont-1] == ")":
+                if regex[cont-1] == ")" or alphanum(regex[cont-1]):
                     output.append("*")
             if operator_stack:
                 if operator_stack[-1] == "(":
@@ -91,7 +90,7 @@ def shunting_yard(regex):
         output.append(operator_stack.pop())
 
     return ''.join(output)
-if __name__ == "__main__":
+
 
     try:
         postfix_expression = shunting_yard("(a+b)*abc*")
