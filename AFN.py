@@ -72,7 +72,8 @@ def postfix_to_nfa(regex):
         elif symbol == '^':
             # Concatenación
             state2, state1 = stack.pop(), stack.pop()
-            state1.acceptation.ledge = state2.initial
+            state1.acceptation.ledge = state2.initial.ledge
+            state1.acceptation.redge = state2.initial.redge
 
             stack.append(nfa(state1.initial, state2.acceptation))
         elif symbol == '+':
