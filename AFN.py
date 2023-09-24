@@ -1,3 +1,5 @@
+import re
+
 from graphviz import Digraph
 def alphanum(a):
     return a.isalpha() or a.isnumeric() or a == "ε"
@@ -10,15 +12,60 @@ class nfa:
     def __init__(self, initial, acceptation):
         self.initial, self.acceptation = initial, acceptation
 
-def postfix_to_nfa(expression):
+
+
+
+def postfix_to_nfa(regex):
+
+    # keys=list(set(re.sub('[^A-Za-z0-9]+', '', regex)+'e'))
+
+    # s=[];stack=[];start=0;end=1
+
+    # counter=-1;c1=0;c2=0
+
+    # for i in regex:
+    #     if i in keys:
+    #         counter=counter+1;c1=counter;counter=counter+1;c2=counter
+    #         s.append({});s.append({})
+    #         stack.append([c1,c2])
+    #         s[c1][i]=c2
+    #     elif i=='*':
+    #         r1,r2=stack.pop()
+    #         counter=counter+1;c1=counter;counter=counter+1;c2=counter
+    #         s.append({});s.append({})
+    #         stack.append([c1,c2])
+    #         s[r2]['e']=(r1,c2);s[c1]['e']=(r1,c2)
+    #         if start==r1:start=c1 
+    #         if end==r2:end=c2 
+    #     elif i=='.':
+    #         r11,r12=stack.pop()
+    #         r21,r22=stack.pop()
+    #         stack.append([r21,r12])
+    #         s[r22]['e']=r11
+    #         if start==r11:start=r21 
+    #         if end==r22:end=r12 
+    #     else:
+    #         counter=counter+1;c1=counter;counter=counter+1;c2=counter
+    #         s.append({});s.append({})
+    #         r11,r12=stack.pop()
+    #         r21,r22=stack.pop()
+    #         stack.append([c1,c2])
+    #         s[c1]['e']=(r21,r11); s[r12]['e']=c2; s[r22]['e']=c2
+    #         if start==r11 or start==r21:start=c1 
+    #         if end==r22 or end==r12:end=c2
+
+    # return s
+
     stack = []
 
-    for symbol in expression:
+    for symbol in regex:
         if alphanum(symbol):
             # Crear un nuevo estado para el símbolo
             new_accepting, new_initial = state(), state()
 
             new_initial.label, new_initial.ledge = symbol, new_accepting
+
+            lastf, lasts = None, None
 
             stack.append(nfa(new_initial, new_accepting))
             
@@ -36,7 +83,26 @@ def postfix_to_nfa(expression):
             new_accepting.label = "ε"
 
             l1 = first.initial.label
+
+            if l1 is None:
+                l1 = first.initial.ledge
+
+                while l1 is not None:
+                    l1 = l1.ledge
+                    if l1:
+                        lastf = l1
+                
+                l1 = lastf.label
+
             l2 = second.initial.label
+
+            if l2 is None:
+                l2 = first.initial.ledge
+
+                while l2.label is not None:
+                    l2 = l2.ledge
+                
+                l2 = l2.ledge.label
 
             first.initial.label, second.initial.label = "ε", "ε"
             new_initial.ledge, new_initial.redge = first.initial, second.initial
@@ -44,7 +110,15 @@ def postfix_to_nfa(expression):
 
             new_first, new_second = state(), state()
             new_first.label, new_second.label = l1, l2
-            first.initial.ledge, second.initial.ledge = new_first, new_second
+            if lastf and lasts:
+                lastf.ledge, lasts.ledge = new_first, new_second
+            elif lastf:
+                lastf.ledge, second.initial.ledge = new_first, new_second
+            elif lasts:
+                first.initial.ledge , lasts.ledge = new_first, new_second
+            else:
+                first.initial.ledge, second.initial.ledge = new_first, new_second
+                
             new_first.ledge, new_second.ledge = new_accepting, new_accepting
 
 
