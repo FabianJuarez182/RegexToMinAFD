@@ -4,7 +4,7 @@ from PIL import Image
 
 
 def main():
-    expression = "a*b*"
+    expression = "((a+b)+c)c"
     chain = ""
 
     try:

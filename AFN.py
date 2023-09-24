@@ -65,15 +65,41 @@ def postfix_to_nfa(regex):
 
             new_initial.label, new_initial.ledge = symbol, new_accepting
 
-            lastf, lasts = None, None
+            
 
             stack.append(nfa(new_initial, new_accepting))
             
         elif symbol == '^':
             # Concatenación
             state2, state1 = stack.pop(), stack.pop()
-            state1.acceptation.ledge = state2.initial.ledge
-            state1.acceptation.redge = state2.initial.redge
+            state1.acceptation = state2
+            lastf, lasts = None, None
+            l1 = state1.initial.label
+
+            if l1 is None:
+                l1 = state1.initial.ledge
+
+                while l1 is not None:
+                    l1 = l1.ledge
+                    if l1:
+                        lastf = l1                
+                l1 = lastf.label
+
+            if lastf:
+                lastf.ledge = state2.initial.ledge
+                lastf.redge = state2.initial.redge
+                if lastf.ledge:
+                    lastf.ledge.label = state2.initial.label
+                if lastf.redge:
+                    lastf.redge.label = state2.initial.label
+                
+            else:
+                state1.ledge = state2.initial.ledge
+                state1.redge = state2.initial.redge
+                if state1.ledge:
+                    state1.ledge.label = state2.initial.label
+                if state1.redge:
+                    state1.redge.label = state2.initial.label
 
             stack.append(nfa(state1.initial, state2.acceptation))
         elif symbol == '+':
@@ -81,6 +107,7 @@ def postfix_to_nfa(regex):
             second = stack.pop()
             first = stack.pop()
             new_initial, new_accepting = state(), state()
+            lastf, lasts = None, None
             new_accepting.label = "ε"
 
             l1 = first.initial.label
@@ -98,12 +125,14 @@ def postfix_to_nfa(regex):
             l2 = second.initial.label
 
             if l2 is None:
-                l2 = first.initial.ledge
+                l2 = second.initial.ledge
 
-                while l2.label is not None:
+                while l2 is not None:
                     l2 = l2.ledge
+                    if l2:
+                        lasts = l2
                 
-                l2 = l2.ledge.label
+                l2 = lasts.label
 
             first.initial.label, second.initial.label = "ε", "ε"
             new_initial.ledge, new_initial.redge = first.initial, second.initial
