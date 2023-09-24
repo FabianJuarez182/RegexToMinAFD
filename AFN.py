@@ -118,7 +118,7 @@ def postfix_to_nfa(regex):
                 first.initial.ledge , lasts.ledge = new_first, new_second
             else:
                 first.initial.ledge, second.initial.ledge = new_first, new_second
-                
+
             new_first.ledge, new_second.ledge = new_accepting, new_accepting
 
 
@@ -126,10 +126,16 @@ def postfix_to_nfa(regex):
 
         elif symbol == '*':
             state1 = stack.pop()
-            new_initial, new_accepting = state(), state()
-            new_accepting.label = "ε"
+            new_initial, new_accepting, new_transition = state(), state(), state()
 
-            new_initial.ledge, new_initial.redge = state1.initial, new_accepting
+            new_accepting.label = "ε"
+            new_transition.label = "ε"
+
+            new_initial.ledge, new_initial.redge = new_transition, new_accepting
+
+            new_transition.ledge = state1.initial
+
+            state1.initial.ledge, state1.initial.redge = new_accepting, new_transition
 
             state1.acceptation.ledge, state1.acceptation.redge = state1.initial, new_accepting
 
