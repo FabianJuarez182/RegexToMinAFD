@@ -6,11 +6,17 @@ def alphanum(a):
 
 class state:
     label, ledge, redge = None, None, None
+    
+    def __str__(self) -> str:
+        return f'\n\t Label: {self.label}, ledge: {self.ledge}, redge: {self.redge}'
 
 class nfa:
 
     def __init__(self, initial, acceptation):
         self.initial, self.acceptation = initial, acceptation
+        
+    def __str__(self) -> str:
+        return f'Automata finito No Determinista \n Estado Inicial: {self.initial} \n Estado de aceptacion: {self.acceptation}'
 
 
 

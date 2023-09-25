@@ -1,5 +1,6 @@
 from Shunting_Yard import shunting_yard
 from AFN import postfix_to_nfa, visualize_nfa
+from AFD import AFD
 from PIL import Image
 
 
@@ -22,6 +23,10 @@ def main():
 
         # Abrir y mostrar la imagen generada
         #view_image("nfa.png")
+        
+        dfa = AFD(nfa)
+        
+        print(dfa)
 
     except ValueError as e:
         print(e)
