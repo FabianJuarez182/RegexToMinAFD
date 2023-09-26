@@ -24,17 +24,16 @@ def shunting_yard(regex):
                 contsum += 1
             if len(output) >= 2:
                 if ((alphanum(output[-2]) or output[-2] == "^") and len(operator_stack) == 0 )or ((alphanum(output[-2]) or output[-2] == "^")and len(operator_stack) == 1 and operator_stack[-1] == "+"):
-                    if regex[cont+1] == "*" :
-                        output.append("*")
-                        output.append("^")
-                        break
+                    if cont != len(regex)-1:
+                        if regex[cont+1] == "*" :
+                            output.append("*")
+                            output.append("^")
                     else:
                         output.append("^")
                 elif (output[-2] in operator_list or alphanum(output[-2]) or output[-2] == "^") and len(operator_stack) == 0:
                     if cont < len(regex) -1 and regex[cont+1] == "*" :
                         output.append("*")
                         output.append("^")
-                        break
                     else:
                         output.append("^")
                 elif operator_stack[-1] == "(" and len(operator_stack) == 1:
@@ -60,7 +59,7 @@ def shunting_yard(regex):
             sumflag == True
         elif char == "*":
             if len(operator_stack) == 0:
-                if regex[cont-1] == ")" or alphanum(regex[cont-1]):
+                if (regex[cont-1] == ")" or alphanum(regex[cont-1])) and (output[-1] != "^" and output[-2] != "*"):
                     output.append("*")
             if operator_stack:
                 if operator_stack[-1] == "(":
