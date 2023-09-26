@@ -1,4 +1,4 @@
-import re
+import time
 import json
 def alphanum(a):
     return a.isalpha() or a.isnumeric() or a == "ε"
@@ -215,3 +215,51 @@ def generate_nfa_json(nfa):
     with open("AFN.json", "w", encoding="utf-8") as json_file:
         json.dump(nfa_json, json_file, indent=4, ensure_ascii=False)
     print("Archivo JSON para AFN generado con éxito.")
+
+
+def get_path(actual, string, getString, transitions, track = [], count = 0, symbol = None):
+
+    if string and getString:
+        symbol = string[0]
+        string = string[1:]
+        getString = False
+        
+    for transition in transitions:
+        if transition not in track:
+            initial, transition_s, destination = transition
+            if initial == actual and (transition_s == symbol or transition_s == "ε" or transition_s is None):
+                count += 1
+                track.append(transition)
+
+                if transition_s == symbol:
+                    getString = True
+                
+                count = get_path(destination, string, getString, transitions, track, count, symbol)
+    return count
+
+def accepts_stack(string, actual, acceptation, transitions):
+    if not string:
+        return actual in acceptation
+    
+    track = []
+    lastchar = string[-1]
+
+    start = time.time()
+    counter = get_path(actual, string, True, transitions, track)
+    end = time.time()
+    running = end - start
+    print("Se requirieron {counter} transacciones y {running} tiempo para verificar la cadena.")
+    
+    for transition in track:
+        ini, symbol, dest = transition
+        if dest == acceptation and symbol == lastchar:
+            return True
+    return False
+
+    
+
+
+
+
+            
+
