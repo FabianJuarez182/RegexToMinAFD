@@ -5,68 +5,74 @@ class AFD:
     def __init__(self, filename):
         # Leer el archivo JSON que contiene la descripción del AFN.
         with open(filename, "r") as json_file:
-            afd = convert_afn_to_afd(json.load(json_file))
+            afn = json.load(json_file)
+            
+        
+        self.afd_transiciones = []
+        self.afd_estados = []
+        self.afd_aceptacion = []
+        self.construir_afd(afn)
+        
+        self.generar_json_afd("AFD.json")
+        
 
-        # Escribir el AFD resultante en un nuevo archivo JSON.
-        with open("afd.json", "w") as json_file:
-            json.dump(afd, json_file, indent=4)
+   
 
-        print("Conversión de AFN a AFD completada. Se ha generado afd.json.")
+    def construir_afd(self, afn):
+        self.estados = afn["ESTADOS"]
+        self.simbolos = afn["SIMBOLOS"]
+        self.inicio = afn["INICIO"]
+        self.aceptacion = afn["ACEPTACION"]
+        self.transiciones = afn["TRANSICIONES"]
+        
+        self.afd_estados.append(self.inicio)
+        
+        for estado in self.afd_estados:
+            tempState = {}
+            for simbolo in self.simbolos:
+                if simbolo != "\u03b5":
+                    tempState[simbolo] = []
+                    
+            for trans in self.transiciones:
+                for elemento in estado:
+                    if trans[0] is elemento:               
+                        if trans[1] == "\u03b5":
+                            for key in tempState:
+                                tempState[key].append(trans[2])
+                        else:
+                            tempState[trans[1]].append(trans[2])
+                            
+            if tempState:
+                for key in tempState:
+                    tempState[key].sort()
+                    if tempState[key] not in self.afd_estados:
+                         self.afd_estados.append(tempState[key])
+                    self.afd_transiciones.append([
+                        estado,
+                        key,
+                        tempState[key]
+                    ])
+            for elemento in estado:
+                if self.aceptacion[0] == elemento:
+                    self.afd_aceptacion.append(estado)
+                    break
+                         
+                
+                
+                
+                
+                
 
-def epsilon_closure(afn, states):
-    closure = set(states)
-    stack = list(states)
+    def generar_json_afd(self, nombre_archivo):
+        afd_data = {
+            "ESTADOS": [list(map(int, estado)) for estado in self.afd_estados],
+            "SIMBOLOS": self.simbolos,
+            "INICIO": [list(map(int, self.afd_estados[0]))],
+            "ACEPTACION": [list(map(int, estado)) for estado in self.afd_aceptacion],
+            "TRANSICIONES": [ [list(map(int, origen)), simbolo, list(map(int, destino))]
+                for origen, simbolo, destino in self.afd_transiciones
+                ]
+        }
 
-    while stack:
-        current_state = stack.pop()
-        if "ε" in afn["TRANSICIONES"]:
-            for target_state in afn["TRANSICIONES"][current_state]["ε"]:
-                if target_state not in closure:
-                    closure.add(target_state)
-                    stack.append(target_state)
-
-    return closure
-
-def move(afn, states, symbol):
-    move_states = set()
-    for state in states:
-        if symbol in afn["TRANSICIONES"][state]:
-            move_states.update(afn["TRANSICIONES"][state][symbol])
-    return move_states
-
-def convert_afn_to_afd(afn):
-    afd = {
-        "ESTADOS": [],
-        "SIMBOLOS": afn["SIMBOLOS"],
-        "INICIO": None,
-        "ACEPTACION": [],
-        "TRANSICIONES": {}
-    }
-
-    # Calcula el estado inicial del AFD mediante la epsilon-cerradura del estado inicial del AFN.
-    initial_state = epsilon_closure(afn, [afn["INICIO"]])
-    afd["INICIO"] = initial_state
-
-    # Inicializa una lista de estados no procesados.
-    unprocessed_states = [initial_state]
-
-    # Procesa estados hasta que no queden por procesar.
-    while unprocessed_states:
-        current_states = unprocessed_states.pop()
-        afd["ESTADOS"].append(current_states)
-
-        for symbol in afn["SIMBOLOS"]:
-            if symbol != "ε":
-                move_states = move(afn, current_states, symbol)
-                if move_states:
-                    move_states = epsilon_closure(afn, move_states)
-                    afd["TRANSICIONES"][current_states, symbol] = move_states
-                    if move_states not in afd["ESTADOS"] and move_states not in unprocessed_states:
-                        unprocessed_states.append(move_states)
-
-    # Determina los estados de aceptación del AFD.
-    for state in afd["ESTADOS"]:
-        if afn["ACEPTACION"] in state:
-            afd["ACEPTACION"].append(state)
-
-    return afd
+        with open(nombre_archivo, 'w') as archivo:
+            json.dump(afd_data, archivo, indent=4)

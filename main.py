@@ -4,7 +4,7 @@ from AFD import AFD
 
 
 def main():
-    expression = "a*b*"
+    expression = "a*"
     chain = ""
 
     try:
