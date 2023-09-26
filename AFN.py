@@ -1,11 +1,14 @@
 import re
-
-from graphviz import Digraph
+import json
 def alphanum(a):
     return a.isalpha() or a.isnumeric() or a == "ε"
 
 class state:
     label, ledge, redge = None, None, None
+    state_count = 0 # Contador de estados
+    def __init__(self):
+        self.state_num = state.state_count
+        state.state_count += 1
 
 class nfa:
 
@@ -17,51 +20,12 @@ class nfa:
 
 def postfix_to_nfa(regex):
 
-    # keys=list(set(re.sub('[^A-Za-z0-9]+', '', regex)+'e'))
-
-    # s=[];stack=[];start=0;end=1
-
-    # counter=-1;c1=0;c2=0
-
-    # for i in regex:
-    #     if i in keys:
-    #         counter=counter+1;c1=counter;counter=counter+1;c2=counter
-    #         s.append({});s.append({})
-    #         stack.append([c1,c2])
-    #         s[c1][i]=c2
-    #     elif i=='*':
-    #         r1,r2=stack.pop()
-    #         counter=counter+1;c1=counter;counter=counter+1;c2=counter
-    #         s.append({});s.append({})
-    #         stack.append([c1,c2])
-    #         s[r2]['e']=(r1,c2);s[c1]['e']=(r1,c2)
-    #         if start==r1:start=c1 
-    #         if end==r2:end=c2 
-    #     elif i=='.':
-    #         r11,r12=stack.pop()
-    #         r21,r22=stack.pop()
-    #         stack.append([r21,r12])
-    #         s[r22]['e']=r11
-    #         if start==r11:start=r21 
-    #         if end==r22:end=r12 
-    #     else:
-    #         counter=counter+1;c1=counter;counter=counter+1;c2=counter
-    #         s.append({});s.append({})
-    #         r11,r12=stack.pop()
-    #         r21,r22=stack.pop()
-    #         stack.append([c1,c2])
-    #         s[c1]['e']=(r21,r11); s[r12]['e']=c2; s[r22]['e']=c2
-    #         if start==r11 or start==r21:start=c1 
-    #         if end==r22 or end==r12:end=c2
-
-    # return s
-
     stack = []
 
     for symbol in regex:
         if alphanum(symbol):
             # Crear un nuevo estado para el símbolo
-            new_accepting, new_initial = state(), state()
+            new_initial, new_accepting = state(), state()
 
             new_initial.label, new_initial.ledge = symbol, new_accepting
 
@@ -185,43 +149,76 @@ def postfix_to_nfa(regex):
 
     return stack.pop()
 
-def visualize_nfa(nfa):
-    dot = Digraph(format='png')
-    dot.attr(rankdir='LR')  # Orientación izquierda a derecha
 
-    # Crear un diccionario para mapear estados a nombres
-    state_names = {}
-    state_counter = 0
+def obtener_estados(nfa):
+    estados = set()
+    stack = [nfa.initial]
+    
+    while stack:
+        estado = stack.pop()
+        if estado.state_num not in estados:  # Verifica si el estado ya se ha agregado
+            estados.add(estado.state_num)
+            if estado.ledge:
+                stack.append(estado.ledge)
+            if estado.redge:
+                stack.append(estado.redge)
 
-    # Agregar estados y transiciones al gráfico DOT
-    def add_state_to_dot(state):
-        nonlocal state_counter
-        state_name = f"q{state_counter}"
-        state_names[state] = state_name
-        state_counter += 1
-        dot.node(state_name, shape='circle', style='bold' if state.acceptation else '')
+    return list(estados)
 
-        for symbol, next_states in state.transitions.items():
-            for next_state in next_states:
-                next_state_name = state_names.get(next_state, f"q{state_counter}")
-                dot.edge(state_name, next_state_name, label=symbol)
+def generate_nfa_json(nfa):
 
-        for next_state in state.epsilon_transitions:
-            next_state_name = state_names.get(next_state, f"q{state_counter}")
-            dot.edge(state_name, next_state_name, label='ε')
+    todos_estados =  obtener_estados(nfa)
 
-    # Recorrer el NFA y agregar estados al gráfico DOT
-    stack = [nfa]
+    symbols_set = set()
+
+    nfa_json = {
+        "ESTADOS": todos_estados,
+        "SIMBOLOS": [],
+        "INICIO": [nfa.initial.state_num],
+        "ACEPTACION": [nfa.acceptation.state_num],
+        "TRANSICIONES": []
+    }
+
+    transitions = {}
+    processed_states = set()
+    stack = [nfa.initial]
+
     while stack:
         current_state = stack.pop()
-        add_state_to_dot(current_state)
-        for next_state in current_state.transitions.values():
-            for state in next_state:
-                if state not in state_names:
-                    stack.append(state)
 
-    # Guardar el gráfico DOT como una imagen PNG
-    dot.render('nfa', view=True)
+        # Verificar si el estado ya ha sido procesado
+        if current_state in processed_states:
+            continue
 
-    print("Imagen del AFN generada con éxito como 'nfa.png'.")
+        # Marcar el estado como procesado
+        processed_states.add(current_state)
 
+        if current_state not in transitions:
+            transitions[current_state] = []
+
+        if current_state.ledge:
+            transitions[current_state].append((current_state.ledge.label, current_state.ledge))
+            stack.append(current_state.ledge)
+            # Agregar el símbolo al conjunto
+            if current_state.ledge.label is not None:
+                symbols_set.add(current_state.ledge.label)
+
+        if current_state.redge:
+            transitions[current_state].append((current_state.redge.label, current_state.redge))
+            stack.append(current_state.redge)
+            # Agregar el símbolo al conjunto
+            if current_state.redge.label is not None:
+                symbols_set.add(current_state.redge.label)
+
+    # Convertir el conjunto de símbolos en una lista ordenada
+    nfa_json["SIMBOLOS"] = sorted(list(symbols_set))
+
+    for state, state_transitions in transitions.items():
+        for symbol, target_state in state_transitions:
+            if target_state.label is None:
+                target_state.label = "ε"
+            nfa_json["TRANSICIONES"].append((state.state_num, target_state.label, target_state.state_num))
+
+    with open("AFN.json", "w") as json_file:
+        json.dump(nfa_json, json_file, indent=4)
+    print("Archivo JSON generado con éxito.")

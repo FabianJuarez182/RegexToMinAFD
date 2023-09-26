@@ -1,10 +1,9 @@
 from Shunting_Yard import shunting_yard
-from AFN import postfix_to_nfa, visualize_nfa
-from PIL import Image
+from AFN import postfix_to_nfa, generate_nfa_json
 
 
 def main():
-    expression = "((a+b)+c)c"
+    expression = "a*b*"
     chain = ""
 
     try:
@@ -13,22 +12,11 @@ def main():
         print("Expresión en postfix:", postfix_expression)
         nfa = postfix_to_nfa(postfix_expression)
 
-        print(str(nfa))
-
-        print("Imagen del AFN generada con éxito.")
-
-        # Visualizar el AFN
-        #visualize_nfa(nfa)
-
-        # Abrir y mostrar la imagen generada
-        #view_image("nfa.png")
+        # Crea el json del nfa para tener la descripcion del afn
+        generate_nfa_json(nfa)
 
     except ValueError as e:
         print(e)
-
-def view_image(image_filename):
-    img = Image.open(image_filename)
-    img.show()
 
 if __name__ == "__main__":
     main()
