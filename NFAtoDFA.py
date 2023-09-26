@@ -57,5 +57,5 @@ class NFAtoDFA:
                     break
         self.simbolos.remove("ε")
         
-        return AFD(self.afd_transiciones, self.simbolos, self.afd_estados, self.afd_aceptacion)
+        return AFD(self.afd_transiciones, self.simbolos, self.afd_estados, self.afd_estados[0],self.afd_aceptacion)
 
