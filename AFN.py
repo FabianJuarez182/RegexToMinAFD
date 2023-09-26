@@ -103,16 +103,9 @@ def postfix_to_nfa(regex):
 
 
             new_first, new_second = state(), state()
-            if l1 != "ε":
-                new_first.label = l1
-                new_first.ledge = new_accepting
-            else:
-                new_first.label = "ε"
-            if l2 != "ε":
-                new_second.label = l2
-                new_second.ledge = new_accepting
-            else:
-                new_second.label = "ε"
+            new_first.label, new_second.label = l1, l2
+
+
             if lastf and lasts:
                 lastf.ledge, lasts.ledge = new_first, new_second
             elif lastf:
@@ -122,7 +115,7 @@ def postfix_to_nfa(regex):
             else:
                 first.initial.ledge, second.initial.ledge = new_first, new_second
 
-            
+            new_first.ledge, new_second.ledge = new_accepting, new_accepting
 
 
             stack.append(nfa(new_initial, new_accepting))
