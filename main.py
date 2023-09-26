@@ -1,6 +1,7 @@
 from Shunting_Yard import shunting_yard
 from AFN import postfix_to_nfa, generate_nfa_json
 from AFD import AFD
+from minAFD import minAFD
 
 
 def main():
@@ -17,6 +18,9 @@ def main():
         generate_nfa_json(nfa)
 
         dfa = AFD("AFN.json")
+        minDFA = minAFD(dfa)
+        minDFA.minimize()
+        print(minDFA.get_minimized_afd())
 
     except ValueError as e:
         print(e)
