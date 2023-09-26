@@ -1,5 +1,6 @@
 from Shunting_Yard import shunting_yard
 from AFN import postfix_to_nfa, generate_nfa_json
+from AFD import AFD
 
 
 def main():
@@ -14,6 +15,8 @@ def main():
 
         # Crea el json del nfa para tener la descripcion del afn
         generate_nfa_json(nfa)
+
+        dfa = AFD("AFN.json")
 
     except ValueError as e:
         print(e)
