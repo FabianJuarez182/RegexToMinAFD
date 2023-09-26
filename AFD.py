@@ -38,24 +38,28 @@ class AFD:
                     if trans[0] is elemento:               
                         if trans[1] == "\u03b5":
                             for key in tempState:
-                                tempState[key].append(trans[2])
+                                if trans[2] not in tempState[key]:
+                                    tempState[key].append(trans[2])
                         else:
-                            tempState[trans[1]].append(trans[2])
+                            if trans[2] not in tempState[trans[1]]:
+                                tempState[trans[1]].append(trans[2])
                             
             if tempState:
                 for key in tempState:
                     tempState[key].sort()
-                    if tempState[key] not in self.afd_estados:
-                         self.afd_estados.append(tempState[key])
-                    self.afd_transiciones.append([
-                        estado,
-                        key,
-                        tempState[key]
-                    ])
+                    if tempState[key]: 
+                        if tempState[key] not in self.afd_estados:
+                            self.afd_estados.append(tempState[key])
+                        self.afd_transiciones.append([
+                            estado,
+                            key,
+                            tempState[key]
+                        ])
             for elemento in estado:
                 if self.aceptacion[0] == elemento:
                     self.afd_aceptacion.append(estado)
                     break
+        self.simbolos.remove("\u03b5")
                          
                 
                 
@@ -76,3 +80,5 @@ class AFD:
 
         with open(nombre_archivo, 'w') as archivo:
             json.dump(afd_data, archivo, indent=4)
+            
+        print("Archivo JSON para AFD generado con éxito.")

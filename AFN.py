@@ -221,4 +221,4 @@ def generate_nfa_json(nfa):
 
     with open("AFN.json", "w") as json_file:
         json.dump(nfa_json, json_file, indent=4)
-    print("Archivo JSON generado con éxito.")
+    print("Archivo JSON para AFN generado con éxito.")
