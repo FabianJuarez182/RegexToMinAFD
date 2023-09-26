@@ -244,11 +244,13 @@ def accepts_stack(string, actual, acceptation, transitions):
     track = []
     lastchar = string[-1]
 
-    start = time.time()
+    start = time.time() * 1000
+    time.sleep(1)
     counter = get_path(actual, string, True, transitions, track)
-    end = time.time()
+    end = time.time() * 1000
+    time.sleep(1)
     running = end - start
-    print("Se requirieron {counter} transacciones y {running} tiempo para verificar la cadena.")
+    print(f"Se requirieron {counter} transacciones y {running} milisegundos para verificar la cadena.")
     
     for transition in track:
         ini, symbol, dest = transition
