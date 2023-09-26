@@ -4,7 +4,7 @@ import json
 class AFD:
     def __init__(self, filename):
         # Leer el archivo JSON que contiene la descripción del AFN.
-        with open(filename, "r") as json_file:
+        with open(filename, "r", encoding="utf-8") as json_file:
             afn = json.load(json_file)
             
         
@@ -30,13 +30,13 @@ class AFD:
         for estado in self.afd_estados:
             tempState = {}
             for simbolo in self.simbolos:
-                if simbolo != "\u03b5":
+                if simbolo != "ε":
                     tempState[simbolo] = []
                     
             for trans in self.transiciones:
                 for elemento in estado:
                     if trans[0] is elemento:               
-                        if trans[1] == "\u03b5":
+                        if trans[1] == "ε":
                             for key in tempState:
                                 if trans[2] not in tempState[key]:
                                     tempState[key].append(trans[2])
@@ -59,13 +59,8 @@ class AFD:
                 if self.aceptacion[0] == elemento:
                     self.afd_aceptacion.append(estado)
                     break
-        self.simbolos.remove("\u03b5")
-                         
-                
-                
-                
-                
-                
+        self.simbolos.remove("ε")
+
 
     def generar_json_afd(self, nombre_archivo):
         afd_data = {

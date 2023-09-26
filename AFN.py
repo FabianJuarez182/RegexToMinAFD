@@ -212,6 +212,6 @@ def generate_nfa_json(nfa):
                 target_state.label = "ε"
             nfa_json["TRANSICIONES"].append((state.state_num, target_state.label, target_state.state_num))
 
-    with open("AFN.json", "w") as json_file:
-        json.dump(nfa_json, json_file, indent=4)
+    with open("AFN.json", "w", encoding="utf-8") as json_file:
+        json.dump(nfa_json, json_file, indent=4, ensure_ascii=False)
     print("Archivo JSON para AFN generado con éxito.")
