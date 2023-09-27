@@ -56,6 +56,8 @@ def createDFA(filename):
         
         afd.generar_json_afd("AFD.json")
         
+        return afd
+        
 
 def subset_construction(nfa):
     dfa_states = []  
@@ -66,6 +68,7 @@ def subset_construction(nfa):
     dfa_states.append(dfa_start_state)  
 
     for state in dfa_states:
+        print(state)
         tempTrans = {}
         for simbolo in nfa.alphabet:
             if simbolo != "ε":
@@ -79,7 +82,9 @@ def subset_construction(nfa):
                         dfa_aceptation.append(state)
                         
                 if paso:
-                    tempTrans[simbolo] = epsilon_closure(nfa,paso)
+                    ne = epsilon_closure(nfa,paso)
+                    ne.sort()
+                    tempTrans[simbolo] = ne
                     if tempTrans[simbolo] not in dfa_states:
                         dfa_states.append(tempTrans[simbolo])
                 
