@@ -1,6 +1,6 @@
 from Shunting_Yard import shunting_yard
 from AFN import postfix_to_nfa, generate_nfa_json, accepts_stack
-from AFD import AFD
+from AFD import AFD, accepts_stack_afd
 from NFAtoDFA import NFAtoDFA
 from minAFD import minAFD
 import json
@@ -20,6 +20,7 @@ def main():
         generate_nfa_json(nfa)
 
         string = input("Ingrese la cadena a evaluar: ")
+        print("\n---------------------------------- AFN ----------------------------------\n")
         with open("AFN.json", "r", encoding="utf-8") as json_file:
             afn = json.load(json_file)
         initial = afn["INICIO"][0]
@@ -36,6 +37,28 @@ def main():
             print("Transiciones realizadas:")
             for transition in track:
                 print(f"Estado {transition[0]} --({transition[1]})--> Estado {transition[2]}")
+        print("\n---------------------------------- AFD ----------------------------------\n")
+
+        with open("AFD.json", "r", encoding="utf-8") as json_file:
+            afd = json.load(json_file)
+
+        initial = afd["INICIO"][0]
+        acceptation = afd["ACEPTACION"][0]
+        transitions = afd["TRANSICIONES"]
+
+        result, track = accepts_stack_afd(string, initial, acceptation, transitions)
+
+        if result:
+            print("SI")
+            print("Transiciones realizadas:")
+            for transition in track:
+                print(f"Estado {transition[0]} --({transition[1]})--> Estado {transition[2]}")
+        else:
+            print("No")
+            print("Transiciones realizadas:")
+            for transition in track:
+                print(f"Estado {transition[0]} --({transition[1]})--> Estado {transition[2]}")
+
 
         #postfix_to_dfa(postfix_expression=postfix_expression)
 
