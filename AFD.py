@@ -56,6 +56,8 @@ def createDFA(filename):
         
         afd.generar_json_afd("AFD.json")
         
+        return afd
+        
 
 def subset_construction(nfa):
     dfa_states = []  

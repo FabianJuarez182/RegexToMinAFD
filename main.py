@@ -20,6 +20,10 @@ def main():
         generate_nfa_json(nfa)
         
         dfa = createDFA("AFN.json")
+        
+        minDFA = minAFD(dfa)
+        minDFA.minimize()
+        print(minDFA.get_minimized_afd())
 
         string = input("Ingrese la cadena a evaluar: ")
         with open("AFN.json", "r", encoding="utf-8") as json_file:
