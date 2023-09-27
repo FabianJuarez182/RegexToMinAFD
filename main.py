@@ -1,6 +1,6 @@
 from Shunting_Yard import shunting_yard
 from AFN import postfix_to_nfa, generate_nfa_json, accepts_stack
-from AFD import AFD
+from AFD import AFD, createDFA
 from NFAtoDFA import NFAtoDFA
 from minAFD import minAFD
 import json
@@ -18,6 +18,8 @@ def main():
         nfa = postfix_to_nfa(postfix_expression)
         # Crea el json del nfa para tener la descripcion del afn
         generate_nfa_json(nfa)
+        
+        dfa = createDFA("AFN.json")
 
         string = input("Ingrese la cadena a evaluar: ")
         with open("AFN.json", "r", encoding="utf-8") as json_file:
@@ -39,7 +41,7 @@ def main():
 
         #postfix_to_dfa(postfix_expression=postfix_expression)
 
-        #dfa = NFAtoDFA().construir_afd("AFN.json")
+        
         #dfa.generar_json_afd("AFD.json")
         #minDFA = minAFD(dfa)
         #minDFA.minimize()
