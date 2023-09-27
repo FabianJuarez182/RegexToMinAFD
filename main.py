@@ -33,7 +33,10 @@ def main():
                 print(f"Estado {transition[0]} --({transition[1]})--> Estado {transition[2]}")
         else:
             print("No")
-        
+            print("Transiciones realizadas:")
+            for transition in track:
+                print(f"Estado {transition[0]} --({transition[1]})--> Estado {transition[2]}")
+
         #postfix_to_dfa(postfix_expression=postfix_expression)
 
         #dfa = NFAtoDFA().construir_afd("AFN.json")
