@@ -59,8 +59,12 @@ def shunting_yard(regex):
             sumflag == True
         elif char == "*":
             if len(operator_stack) == 0:
-                if (regex[cont-1] == ")" or alphanum(regex[cont-1])) and (output[-1] != "^" and output[-2] != "*"):
-                    output.append("*")
+                if (regex[cont-1] == ")" or alphanum(regex[cont-1])):
+                    if len(output) >= 2:
+                        if (output[-1] != "^" and output[-2] != "*" ):
+                            output.append("*")
+                    if len(output) == 1 and alphanum(output[0]):
+                        output.append("*")
             if operator_stack:
                 if operator_stack[-1] == "(":
                     output.append("*")
