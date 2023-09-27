@@ -12,7 +12,6 @@ def main():
     chain = ""
 
     try:
-
         postfix_expression = shunting_yard(expression)
         print("Expresión regular ingresada:", expression)
         print("Expresión en postfix:", postfix_expression)
@@ -26,8 +25,14 @@ def main():
         initial = afn["INICIO"][0]
         acceptation = afn["ACEPTACION"][0]
         transitions = afn["TRANSICIONES"]
-        res = "SI" if accepts_stack(string, initial, acceptation, transitions) else "NO"
-        print(res)
+        result, track = accepts_stack(string, initial, acceptation, transitions)
+        if result:
+            print("SI")
+            print("Transiciones realizadas:")
+            for transition in track:
+                print(f"Estado {transition[0]} --({transition[1]})--> Estado {transition[2]}")
+        else:
+            print("No")
         
         #postfix_to_dfa(postfix_expression=postfix_expression)
 

@@ -239,8 +239,8 @@ def get_path(actual, string, getString, transitions, track = [], count = 0, symb
 
 def accepts_stack(string, actual, acceptation, transitions):
     if not string:
-        return actual in acceptation
-    
+        return actual in acceptation, []
+
     track = []
     lastchar = string[-1]
 
@@ -255,9 +255,8 @@ def accepts_stack(string, actual, acceptation, transitions):
     for transition in track:
         ini, symbol, dest = transition
         if dest == acceptation and symbol == lastchar:
-            return True
-    return False
-
+            return True, track
+    return False, track
     
 
 
