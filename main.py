@@ -23,7 +23,7 @@ def main():
 
         minDFA = minAFD(dfa)
         minDFA.minimize()
-        print(minDFA.get_minimized_afd())
+        minDFA.generar_json_minafd("minAFD.json")
 
         string = input("Ingrese la cadena a evaluar: ")
         print("\n---------------------------------- AFN ----------------------------------\n")

@@ -1,4 +1,5 @@
 import AFD
+import json
 
 class minAFD:
     def __init__(self, afd):
@@ -56,6 +57,14 @@ class minAFD:
             minTransiciones[tuple(transicion[0])][transicion[1]] = transicion[2]
             
         return minTransiciones
+    
+    def unParseTransiciones(self, transiciones):
+        minTransiciones = []
+        for transicion in transiciones:
+            for key in transiciones[transicion]:
+                minTransiciones.append([list(transicion), key, transiciones[transicion][key]])
+                
+        return minTransiciones
      
 
     def minimize(self):
@@ -89,6 +98,8 @@ class minAFD:
                         if tEstado not in tempTrans:
                             tempTrans[tEstado] = {}
                         tempTrans[tEstado][key] = part
+         
+        self.transiciones = self.unParseTransiciones(tempTrans)
                         
                 
 
@@ -106,4 +117,19 @@ class minAFD:
             for i in estado:
                 if i == self.afd.afd_inicial:
                     return estado
+                
+    def generar_json_minafd(self, nombre_archivo):
+         
+        afd_data = {
+            "ESTADOS": self.estados,
+            "SIMBOLOS": self.afd.simbolos,
+            "INICIO": self.find_start_state(),
+            "ACEPTACION": self.estados[-1],
+            "TRANSICIONES": self.transiciones
+        } 
+
+        with open(nombre_archivo, 'w') as archivo:
+            json.dump(afd_data, archivo, indent=4)
+            
+        print("Archivo JSON para minAFD generado con éxito.")
 
