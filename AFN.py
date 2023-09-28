@@ -254,7 +254,7 @@ def accepts_stack(string, actual, acceptation, transitions):
     
     for transition in track:
         ini, symbol, dest = transition
-        if dest == acceptation and symbol == lastchar or symbol == "ε" or symbol is None:
+        if dest == acceptation and (symbol == lastchar or symbol == "ε" or symbol is None):
             return True, track
     return False, track
     
