@@ -143,17 +143,20 @@ def get_path(actual, string, getString, transitions, track = [], count = 0, symb
         
     for transition in transitions:
         if transition not in track:
-            initial, transition_s, destination = transition
-            if initial == actual and transition_s == symbol:
-                count += 1
-                track.append(transition)
+            initials, transition_s, destinations = transition
+            for initial in initials:
+                 if initial == actual and transition_s == symbol:
+                    count += 1
+                    track.append(transition)
 
-                if transition_s == symbol:
-                    getString = True
-                if string == "":
-                    symbol = ""
-                    getString = False
-                count = get_path(destination, string, getString, transitions, track, count, symbol)
+                    if transition_s == symbol:
+                        getString = True
+                    if string == "":
+                        symbol = ""
+                        getString = False
+                    for destination in destinations:
+                        count = get_path(destination, string, getString, transitions, track, count, symbol)
+            
     return count
 
 def accepts_stack_minafd(string, actual, acceptation, transitions):
@@ -162,10 +165,12 @@ def accepts_stack_minafd(string, actual, acceptation, transitions):
 
     track = []
     lastchar = string[-1]
+    counter = 0
 
     start = time.time() * 1000
     time.sleep(1)
-    counter = get_path(actual, string, True, transitions, track)
+    for initial in actual:
+        counter += get_path(initial, string, True, transitions, track)
     end = time.time() * 1000
     time.sleep(1)
     running = end - start

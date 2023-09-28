@@ -82,8 +82,8 @@ def main():
         with open("minAFD.json", "r", encoding="utf-8") as json_file:
             minafd = json.load(json_file)
 
-        initial = minafd["INICIO"][0]
-        acceptation = minafd["ACEPTACION"][0]
+        initial = minafd["INICIO"]
+        acceptation = minafd["ACEPTACION"]
         transitions = minafd["TRANSICIONES"]
 
         result, track = accepts_stack_minafd(string, initial, acceptation, transitions)
