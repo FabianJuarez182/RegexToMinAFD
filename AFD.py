@@ -189,7 +189,7 @@ def accepts_stack_afd(string, actual, acceptation, transitions):
     end = time.time() * 1000
     time.sleep(1)
     running = end - start
-    print(f"Se requirieron {counter} transacciones y {running} milisegundos para verificar la cadena.")
+    print(f"Se requirieron {running} milisegundos para verificar la cadena.")
     
     for transition in track:
         ini, symbol, dest = transition

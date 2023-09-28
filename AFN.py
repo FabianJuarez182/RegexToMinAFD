@@ -225,7 +225,7 @@ def get_path(actual, string, getString, transitions, track = [], count = 0, symb
         getString = False
         
     for transition in transitions:
-        if transition not in track:
+        if transition not in track or count <= 600:
             initial, transition_s, destination = transition
             if initial == actual and (transition_s == symbol or transition_s == "ε" or transition_s is None):
                 count += 1
@@ -250,11 +250,11 @@ def accepts_stack(string, actual, acceptation, transitions):
     end = time.time() * 1000
     time.sleep(1)
     running = end - start
-    print(f"Se requirieron {counter} transacciones y {running} milisegundos para verificar la cadena.")
+    print(f"Se requirieron {running} milisegundos para verificar la cadena.")
     
     for transition in track:
         ini, symbol, dest = transition
-        if dest == acceptation and symbol == lastchar:
+        if dest == acceptation and symbol == lastchar or symbol == "ε" or symbol is None:
             return True, track
     return False, track
     

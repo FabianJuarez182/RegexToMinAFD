@@ -7,7 +7,7 @@ import json
 
 
 def main():
-    expression = "(a+c*)c*b"
+    expression = "(a+c)*b*aaa(b+c)"
     #expression = input("Ingrese la expresión regular")
     chain = ""
 
@@ -18,9 +18,9 @@ def main():
         nfa = postfix_to_nfa(postfix_expression)
         # Crea el json del nfa para tener la descripcion del afn
         generate_nfa_json(nfa)
-        
+
         dfa = createDFA("AFN.json")
-        
+
         minDFA = minAFD(dfa)
         minDFA.minimize()
         print(minDFA.get_minimized_afd())
@@ -38,6 +38,8 @@ def main():
             print("Transiciones realizadas:")
             for transition in track:
                 print(f"Estado {transition[0]} --({transition[1]})--> Estado {transition[2]}")
+                if transition[2] == acceptation:
+                    break
         else:
             print("No")
             print("Transiciones realizadas:")
