@@ -1,5 +1,6 @@
 import AFD
 import json
+import time
 
 class minAFD:
     def __init__(self, afd):
@@ -133,3 +134,45 @@ class minAFD:
             
         print("Archivo JSON para minAFD generado con éxito.")
 
+def get_path(actual, string, getString, transitions, track = [], count = 0, symbol = None):
+
+    if string and getString:
+        symbol = string[0]
+        string = string[1:]
+        getString = False
+        
+    for transition in transitions:
+        if transition not in track:
+            initial, transition_s, destination = transition
+            if initial == actual and transition_s == symbol:
+                count += 1
+                track.append(transition)
+
+                if transition_s == symbol:
+                    getString = True
+                if string == "":
+                    symbol = ""
+                    getString = False
+                count = get_path(destination, string, getString, transitions, track, count, symbol)
+    return count
+
+def accepts_stack_minafd(string, actual, acceptation, transitions):
+    if not string:
+        return actual in acceptation, []
+
+    track = []
+    lastchar = string[-1]
+
+    start = time.time() * 1000
+    time.sleep(1)
+    counter = get_path(actual, string, True, transitions, track)
+    end = time.time() * 1000
+    time.sleep(1)
+    running = end - start
+    print(f"Se requirieron {running} milisegundos para verificar la cadena.")
+    
+    for transition in track:
+        ini, symbol, dest = transition
+        if dest == acceptation and symbol == lastchar:
+            return True, track
+    return False, track
