@@ -68,7 +68,6 @@ def subset_construction(nfa):
     dfa_states.append(dfa_start_state)  
 
     for state in dfa_states:
-        print(state)
         tempTrans = {}
         for simbolo in nfa.alphabet:
             if simbolo != "ε":

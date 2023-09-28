@@ -3,72 +3,107 @@ import AFD
 class minAFD:
     def __init__(self, afd):
         self.afd = afd
-        self.partition = []
         
-    def createPartition(self, estados, aceptacion):
-        for elem in aceptacion:
-            estados.remove(elem)
+    def createPartition(self, particion, transiciones):
+        numParticion = len(particion)
+        newParticion = particion.copy()
+        aceptacion = newParticion.pop()
+        newTransiciones = {}
+        tempPart = {}
+        
+        for transicion in transiciones:
+            if list(transicion) not in self.afd.afd_aceptacion:
+                newTransiciones[transicion] = []
+                for t in transiciones[transicion]:
+                    for part in particion:
+                        if transiciones[transicion][t] in part:
+                            newTransiciones[transicion].append([transiciones[transicion][t],particion.index(part)])
+        
+        for transicion in newTransiciones:
+            signs = []
+            for elem in newTransiciones[transicion]:
+             signs.append(elem[1])
+             
+            if tuple(signs) not in tempPart:
+                tempPart[tuple(signs)] = []
+            tempPart[tuple(signs)].append(transicion)
+        
+        newParticion = []
+        for key in tempPart:
+            newParticion.append(list(list(elem) for elem in tempPart[key]))
+        
+        newParticion.append(aceptacion)
+        
+        return newParticion
+        
+
+    def rmUnreachableStates(self, transiciones, inicio):
+        estados = [inicio]
+
+        for estado in estados:
+            for transicion in transiciones[tuple(estado)]:
+                if transiciones[tuple(estado)][transicion] not in estados:
+                    estados.append(transiciones[tuple(estado)][transicion])
+                    
+        return estados
+    
+    def parseTransiciones(self):
+        afd_transiciones = self.afd.afd_transiciones
+        minTransiciones = {}
+        for transicion in afd_transiciones:
+            if tuple(transicion[0]) not in minTransiciones:
+                minTransiciones[tuple(transicion[0])] = {}
+            minTransiciones[tuple(transicion[0])][transicion[1]] = transicion[2]
             
-        self.partition = [[set(estado) for estado in estados], [set(estado) for estado in estados]]
+        return minTransiciones
+     
 
     def minimize(self):
-        self.createPartition(self.afd.afd_estados, self.afd.afd_aceptacion)
-        refined = True
-        while refined:
-            refined = False
-            for symbol in self.afd.simbolos:
-                new_partition = []
-                for block in self.partition:
-                    transitions = {}
-                    for state in block:
-                        for transition in self.afd.afd_transiciones:
-                            if state == transition[0] and symbol == transition[1]:
-                                print(transitions)
-                                if transition[2] not in transitions:
-                                    transitions[transition[2]] = [state]
-                                else:
-                                    transitions[transition[2]].append(state)
-                    for key in transitions:
-                        new_partition.append(set(transitions[key]))
-                if len(new_partition) > 0 and len(new_partition) != len(self.partition):
-                    refined = True
-                    self.partition = new_partition
-        self.generate_minimized_afd()
+        self.transiciones = self.parseTransiciones()
+        self.estados = self.rmUnreachableStates( self.transiciones, self.afd.afd_inicial)
+        self.partition = [[],[]]
+        for estado in self.estados:
+            if estado not in self.afd.afd_aceptacion:
+                self.partition[0].append(estado)
+            elif estado in self.afd.afd_aceptacion:
+                self.partition[1].append(estado)
+        
+        self.partition = self.createPartition(self.partition, self.transiciones)
 
-    def generate_minimized_afd(self):
-        self.afd_minimized_states = []
-        self.afd_minimized_transitions = []
-        self.afd_minimized_acceptance = []
-
-        for block in self.partition:
-            self.afd_minimized_states.append(list(block))
-            for state in block:
-                if state in self.afd.afd_aceptacion:
-                    self.afd_minimized_acceptance.append(list(block))
-
-        for i, state_set in enumerate(self.partition):
-            for symbol in self.afd.simbolos:
-                next_state = self.find_next_state(state_set, symbol)
-                self.afd_minimized_transitions.append([list(state_set), symbol, next_state])
-
-    def find_next_state(self, state_set, symbol):
-        for transition in self.afd.afd_transiciones:
-            if transition[0] in state_set and transition[1] == symbol:
-                for block in self.partition:
-                    if transition[2] in block:
-                        return list(block)
-        return []
+        while True:
+            nParticion = self.createPartition(self.partition, self.transiciones)
+            if self.partition != nParticion:
+                self.partition = nParticion   
+            else:
+                break
+            
+        self.estados = [j for j in self.partition]
+        
+        tempTrans = {}
+        
+        for estado in self.estados:
+            tEstado = tuple(tuple(elem) for elem in estado)
+            for key in self.transiciones[tuple(estado[0])]:
+                for part in self.partition:
+                    if self.transiciones[tuple(estado[0])][key] in part:
+                        if tEstado not in tempTrans:
+                            tempTrans[tEstado] = {}
+                        tempTrans[tEstado][key] = part
+                        
+                
 
     def get_minimized_afd(self):
         return {
-            "ESTADOS": self.afd_minimized_states,
+            "ESTADOS": self.estados,
             "SIMBOLOS": self.afd.simbolos,
             "INICIO": self.find_start_state(),
-            "ACEPTACION": self.afd_minimized_acceptance,
-            "TRANSICIONES": self.afd_minimized_transitions
+            "ACEPTACION": self.estados[-1],
+            "TRANSICIONES": self.transiciones
         }
-
+        
     def find_start_state(self):
-        for block in self.partition: 
-            if {self.afd.afd_estados[0][0]} in block:
-                return {self.afd.afd_estados[0][0]}
+        for estado in self.estados:
+            for i in estado:
+                if i == self.afd.afd_inicial:
+                    return estado
+
