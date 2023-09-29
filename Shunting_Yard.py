@@ -27,7 +27,8 @@ def shunting_yard(regex):
                     if cont != len(regex)-1:
                         if regex[cont+1] == "*" :
                             output.append("*")
-                            output.append("^")
+                            if len(operator_stack) == 0:
+                                output.append("^")
                         elif (alphanum(output[-2]) or output[-2] == "^") and len(operator_stack) == 0:
                             output.append("^")
                     else:
